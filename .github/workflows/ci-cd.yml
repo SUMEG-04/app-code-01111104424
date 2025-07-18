@@ -54,7 +54,4 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
-        script: |
-          docker pull $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
-          docker stop app || true && docker rm app || true
-          docker run -d --name app -p 80:3000 $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
+        script: docker run -d --name app -p 80:3000 $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
