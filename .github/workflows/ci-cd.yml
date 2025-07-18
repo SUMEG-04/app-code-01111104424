@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -54,4 +55,4 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
-        script: docker run -d --name app -p 80:3000 $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
+        script: docker run -d --name app -p 80:3111 $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
