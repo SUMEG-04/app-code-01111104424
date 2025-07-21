@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const port = process.env.PORT || 3011;
+const port = process.env.PORT || 3111;
 
 app.get('/', (req, res) => {
   res.send(`App is running on port ${port}`);
