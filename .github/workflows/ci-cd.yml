@@ -43,13 +43,20 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO:latest
-        docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO:${{ github.sha }} .
+        GITHUB_SHA_SHORT=${${{ github.sha }}::7}
+        docker build \
+          -t $DOCKERHUB_USERNAME/$IMAGE_NAME:latest \
+          -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO \
+          -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO-$GITHUB_SHA_SHORT \
+      .
+
 
     - name: Push Docker image
       run: |
-        docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO:latest
-        docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO:${{ github.sha }}
+        GITHUB_SHA_SHORT=${${{ github.sha }}::7}
+        docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
+        docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
+        docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO-$GITHUB_SHA_SHORT
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.3
@@ -57,8 +64,10 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
-        script: | 
-            echo "Using image: ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.ROLLNO }}"
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.ROLLNO }}
-            docker stop doc-container || true && docker rm doc-container || true
-            docker run -d --name doc-container -p 80:3111 ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.ROLLNO }}:${{ github.sha }} 
+        script: |
+          GITHUB_SHA_SHORT=${${{ github.sha }}::7}
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ secrets.ROLLNO }}"
+          echo "Using image: $IMAGE"
+          docker pull $IMAGE
+          docker stop doc-container || true && docker rm doc-container || true
+          docker run -d --name doc-container -p 80:3111 $IMAGE
