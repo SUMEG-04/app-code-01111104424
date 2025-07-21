@@ -42,8 +42,10 @@ jobs:
       run: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
     - name: Build Docker image
+      env:
+        GITHUB_SHA: ${{ github.sha }}
       run: |
-        GITHUB_SHA_SHORT=${${{ github.sha }}::7}
+        GITHUB_SHA_SHORT=${GITHUB_SHA::7}
         docker build \
           -t $DOCKERHUB_USERNAME/$IMAGE_NAME:latest \
           -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO \
@@ -51,20 +53,24 @@ jobs:
 
 
     - name: Push Docker image
+      env:
+        GITHUB_SHA: ${{ github.sha }}
       run: |
-        GITHUB_SHA_SHORT=${${{ github.sha }}::7}
+        GITHUB_SHA_SHORT=${GITHUB_SHA::7}
         docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
         docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO
         docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO-$GITHUB_SHA_SHORT
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.3
+      env:
+        GITHUB_SHA: ${{ github.sha }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
         script: |
-          GITHUB_SHA_SHORT=${${{ github.sha }}::7}
+          GITHUB_SHA_SHORT=${GITHUB_SHA::7}
           IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ secrets.ROLLNO }}"
           echo "Using image: $IMAGE"
           docker pull $IMAGE
