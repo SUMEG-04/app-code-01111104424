@@ -77,4 +77,4 @@ jobs:
           echo "Using image: $IMAGE"
           docker pull $IMAGE
           docker stop doc-container || true && docker rm doc-container || true
-          docker run -d --name doc-container -p 80:3111 $IMAGE
+          docker run -d --name doc-container -p 3111:3111 $IMAGE
