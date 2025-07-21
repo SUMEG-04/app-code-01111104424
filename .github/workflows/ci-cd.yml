@@ -50,6 +50,8 @@ jobs:
           -t $DOCKERHUB_USERNAME/$IMAGE_NAME:latest \
           -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO \
           -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$ROLLNO-$GITHUB_SHA_SHORT \
+          .
+
 
 
     - name: Push Docker image
