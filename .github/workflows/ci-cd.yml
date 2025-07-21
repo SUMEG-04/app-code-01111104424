@@ -55,4 +55,8 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
-        script: docker run -d --name app -p 80:3111 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.ROLLNO }}
+        script: |
+            echo "Using image: ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.ROLLNO }}"
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.ROLLNO }}
+            docker stop app || true && docker rm app || true
+            docker run -d --name app -p 80:3111 ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.ROLLNO }}
